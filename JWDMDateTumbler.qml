@@ -13,6 +13,7 @@ Rectangle
     property int fontPixelSize: templateText.font.pixelSize
     property bool dateGood: new Date(yearTumbler.currentIndex + yearStart, monthTumbler.currentIndex, dayTumbler.currentIndex + 1).toLocaleDateString(Qt.locale(), "yyyyMd")
                             == (yearStart + yearTumbler.currentIndex).toString() + (monthTumbler.currentIndex + 1).toString() + (dayTumbler.currentIndex + 1).toString()
+    property bool showButtons: true
     function init(d)
     {
         theDate = d
@@ -102,48 +103,60 @@ Rectangle
             }
         }
     }
-    Rectangle
+    Row
     {
-        width: parent.width / 2
-        height: parent.height / 10
+        id: buttonRow
+        width: parent.width - 2
+        height: parent.height / 8
         anchors.bottom: parent.bottom
-        border.width: 1
-        border.color: borderColor
-        Text {
-            text: qsTr("Ok")
-            anchors.centerIn: parent
-        }
-        MouseArea
+        anchors.bottomMargin: 1
+        anchors.horizontalCenter: parent.horizontalCenter
+        Rectangle
         {
-            anchors.fill: parent
-            onClicked:
+            width: parent.width / 2
+            height: parent.height
+            Text
             {
-                if (!dateGood)
+                text: qsTr("Ok")
+                anchors.centerIn: parent
+            }
+            MouseArea
+            {
+                anchors.fill: parent
+                onClicked:
                 {
-                    return
+                    if (!dateGood)
+                    {
+                        return
+                    }
+                    datePicked(new Date(yearTumbler.currentIndex + yearStart, monthTumbler.currentIndex, dayTumbler.currentIndex + 1))
                 }
-                datePicked(new Date(yearTumbler.currentIndex + yearStart, monthTumbler.currentIndex, dayTumbler.currentIndex + 1))
             }
         }
-    }
-    Rectangle
-    {
-        width: parent.width / 2
-        height: parent.height / 10
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        border.width: 1
-        border.color: borderColor
-        Text {
-            text: qsTr("Abbrechen")
-            anchors.centerIn: parent
-        }
-        MouseArea
+        Rectangle
         {
-            anchors.fill: parent
-            onClicked:
+            width: 1
+            height: parent.height
+            color: borderColor
+        }
+
+        Rectangle
+        {
+
+            width: parent.width / 2 - 1
+            height: parent.height
+            Text
             {
-                noDatePicked()
+                text: qsTr("Abbrechen")
+                anchors.centerIn: parent
+            }
+            MouseArea
+            {
+                anchors.fill: parent
+                onClicked:
+                {
+                    noDatePicked()
+                }
             }
         }
     }
