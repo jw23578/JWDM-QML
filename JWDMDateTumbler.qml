@@ -58,6 +58,11 @@ Rectangle
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 opacity: 0.4 + Math.max(0, 1 - Math.abs(Tumbler.displacement)) * 0.6
+                MouseArea
+                {
+                    anchors.fill: parent
+                    onClicked: dayTumbler.currentIndex = index
+                }
             }
         }
         Rectangle
@@ -84,6 +89,11 @@ Rectangle
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 opacity: 0.4 + Math.max(0, 1 - Math.abs(Tumbler.displacement)) * 0.6
+                MouseArea
+                {
+                    anchors.fill: parent
+                    onClicked: monthTumbler.currentIndex = index
+                }
             }
         }
         Tumbler
@@ -109,6 +119,11 @@ Rectangle
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 opacity: 0.4 + Math.max(0, 1 - Math.abs(Tumbler.displacement)) * 0.6
+                MouseArea
+                {
+                    anchors.fill: parent
+                    onClicked: yearTumbler.currentIndex = index
+                }
             }
         }
     }
