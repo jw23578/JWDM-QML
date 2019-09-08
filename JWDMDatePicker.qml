@@ -79,8 +79,8 @@ Rectangle
                     anchors.fill: parent
                     onClicked:
                     {
-                        monthSelect.visible = false
-                        yearSelect.visible = false
+                        monthSelect.opacity = 0
+                        yearSelect.opacity = 0
                         addMonth(-1)
                     }
 
@@ -104,8 +104,15 @@ Rectangle
                     anchors.fill: parent
                     onClicked:
                     {
-                        yearSelect.visible = false
-                        monthSelect.visible = !monthSelect.visible
+                        yearSelect.opacity = 0
+                        if (monthSelect.opacity > 0)
+                        {
+                            monthSelect.opacity = 0
+                        }
+                        else
+                        {
+                            monthSelect.opacity = 1
+                        }
                     }
                 }
             }
@@ -126,8 +133,15 @@ Rectangle
                     onClicked:
                     {
                         yearSelect.currentIndex = currentDate.getFullYear() - yearStart
-                        monthSelect.visible = false
-                        yearSelect.visible = !yearSelect.visible
+                        monthSelect.opacity = 0
+                        if (yearSelect.opacity > 0)
+                        {
+                            yearSelect.opacity = 0
+                        }
+                        else
+                        {
+                            yearSelect.opacity = 1
+                        }
                     }
                 }
             }
@@ -147,8 +161,8 @@ Rectangle
                     anchors.fill: parent
                     onClicked:
                     {
-                        monthSelect.visible = false
-                        yearSelect.visible = false
+                        monthSelect.opacity = 0
+                        yearSelect.opacity = 0
                         addMonth(1)
                     }
                 }
@@ -173,7 +187,8 @@ Rectangle
                 width: parent.width
                 Row
                 {
-                    visible: !yearSelect.visible && !monthSelect.visible
+                    visible: opacity > 0
+                    opacity: daySelect.opacity
                     id: weekDays
                     width: parent.width
                     height: monthYear.height / 3 * 2
@@ -194,7 +209,8 @@ Rectangle
                 }
                 Rectangle
                 {
-                    visible: !yearSelect.visible && !monthSelect.visible
+                    visible: opacity > 0
+                    opacity: daySelect.opacity
                     id: line
                     color: "grey"
                     height: 1
@@ -202,7 +218,8 @@ Rectangle
                 }
                 Grid
                 {
-                    visible: !yearSelect.visible && !monthSelect.visible
+                    visible: opacity > 0
+                    opacity: 1 - yearSelect.opacity - monthSelect.opacity
                     columns: 7
                     id: daySelect
                     width: parent.width
@@ -235,9 +252,9 @@ Rectangle
                             Rectangle
                             {
                                 anchors.centerIn: parent
-                                width: parent.width * 4 / 5
-                                height: parent.contentHeight * 1.5
-                                radius: 5
+                                width: height
+                                height: parent.contentHeight * 1.7
+                                radius: width / 2
                                 color: "transparent"
                                 border.width: 1
                                 border.color: theJWDMDatePicker.borderColor
@@ -250,7 +267,15 @@ Rectangle
             GridView
             {
                 z: 1
-                visible: false
+                visible: opacity > 0
+                opacity: 0
+                Behavior on opacity {
+                    NumberAnimation
+                    {
+                        duration: 200
+                    }
+                }
+
                 id: yearSelect
                 anchors.fill: parent
                 clip: true
@@ -273,7 +298,7 @@ Rectangle
                         onClicked:
                         {
                             setYear(yearStart + index)
-                            yearSelect.visible = false
+                            yearSelect.opacity = 0
                         }
                     }
                     Rectangle
@@ -293,7 +318,14 @@ Rectangle
             Grid
             {
                 z: 1
-                visible: false
+                visible: opacity > 0
+                opacity: 0
+                Behavior on opacity {
+                    NumberAnimation
+                    {
+                        duration: 200
+                    }
+                }
                 id: monthSelect
                 anchors.fill: parent
                 Repeater
@@ -313,7 +345,7 @@ Rectangle
                             onClicked:
                             {
                                 setMonth(index)
-                                monthSelect.visible = false
+                                monthSelect.opacity = 0
                             }
                         }
                         Rectangle
