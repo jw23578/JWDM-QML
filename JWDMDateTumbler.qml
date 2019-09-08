@@ -7,23 +7,28 @@ Rectangle
     property color borderColor: "grey"
     property int yearStart: new Date().getFullYear() - 150
     property int yearRange: 300
-    property date theDate: new Date()
+    property date currentDate: new Date(yearTumbler.currentIndex + yearStart, monthTumbler.currentIndex, dayTumbler.currentIndex + 1)
+    color: backgroundColor
     border.width: 1
     border.color: borderColor
-    property int fontPixelSize: templateText.font.pixelSize
-    property bool dateGood: new Date(yearTumbler.currentIndex + yearStart, monthTumbler.currentIndex, dayTumbler.currentIndex + 1).toLocaleDateString(Qt.locale(), "yyyyMd")
+    property alias font: templateText.font
+    property color fontColor: "black"
+    property bool dateGood: currentDate.toLocaleDateString(Qt.locale(), "yyyyMd")
                             == (yearStart + yearTumbler.currentIndex).toString() + (monthTumbler.currentIndex + 1).toString() + (dayTumbler.currentIndex + 1).toString()
     property bool showButtons: true
     function init(d)
     {
-        theDate = d
-        dayTumbler.currentIndex = theDate.getDate() - 1
-        yearTumbler.currentIndex = theDate.getFullYear() - yearStart
-        monthTumbler.currentIndex = theDate.getMonth()
+        dayTumbler.currentIndex = d.getDate() - 1
+        yearTumbler.currentIndex = d.getFullYear() - yearStart
+        monthTumbler.currentIndex = d.getMonth()
     }
-
     signal datePicked(date d)
     signal noDatePicked()
+
+    // private
+    property int buttonHeight: showButtons ? buttonRow.height + 1 : 1
+    property color internalFontColor: dateGood ? fontColor : "red"
+
     id: theJWDMDateTumbler
     Text
     {
@@ -33,8 +38,9 @@ Rectangle
     Row
     {
         width: parent.width - 2
-        height: parent.height - 2
+        height: parent.height - 2 - buttonHeight
         anchors.centerIn: parent
+        anchors.verticalCenterOffset: - buttonHeight / 2
         Tumbler
         {
             id: dayTumbler
@@ -45,7 +51,8 @@ Rectangle
             delegate: Text
             {
                 text: index + 1
-                color: dateGood ? "black" : "red"
+                font: theJWDMDateTumbler.font
+                color: internalFontColor
                 width: parent.width
                 height: parent.height
                 verticalAlignment: Text.AlignVCenter
@@ -71,7 +78,8 @@ Rectangle
             {
                 width: parent.width
                 height: parent.height
-                color: dateGood ? "black" : "red"
+                font: theJWDMDateTumbler.font
+                color: internalFontColor
                 text: new Date(1978, index, 1).toLocaleString(Qt.locale(), "MMMM")
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
@@ -95,31 +103,42 @@ Rectangle
             {
                 width: parent.width
                 height: parent.height
+                font: theJWDMDateTumbler.font
                 text: yearStart + index
-                color: dateGood ? "black" : "red"
+                color: internalFontColor
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 opacity: 0.4 + Math.max(0, 1 - Math.abs(Tumbler.displacement)) * 0.6
             }
         }
     }
+    Rectangle
+    {
+        width: parent.width
+        height: 1
+        color: borderColor
+        visible: showButtons
+        anchors.bottom: buttonRow.top
+    }
+
     Row
     {
         id: buttonRow
+        visible: showButtons
         width: parent.width - 2
         height: parent.height / 8
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 1
         anchors.horizontalCenter: parent.horizontalCenter
-        Rectangle
+        Text
         {
             width: parent.width / 2
+            font: theJWDMDateTumbler.font
             height: parent.height
-            Text
-            {
-                text: qsTr("Ok")
-                anchors.centerIn: parent
-            }
+            color: internalFontColor
+            text: qsTr("Ok")
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
             MouseArea
             {
                 anchors.fill: parent
@@ -129,7 +148,7 @@ Rectangle
                     {
                         return
                     }
-                    datePicked(new Date(yearTumbler.currentIndex + yearStart, monthTumbler.currentIndex, dayTumbler.currentIndex + 1))
+                    datePicked(currentDate)
                 }
             }
         }
@@ -140,16 +159,15 @@ Rectangle
             color: borderColor
         }
 
-        Rectangle
+        Text
         {
-
+            text: qsTr("Abbrechen")
+            font: theJWDMDateTumbler.font
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            color: internalFontColor
             width: parent.width / 2 - 1
             height: parent.height
-            Text
-            {
-                text: qsTr("Abbrechen")
-                anchors.centerIn: parent
-            }
             MouseArea
             {
                 anchors.fill: parent
