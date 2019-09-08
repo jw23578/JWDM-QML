@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>JWDMDatePicker.qml</file>
+        <file>JWDMDateTumbler.qml</file>
+    </qresource>
+</RCC>

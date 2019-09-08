@@ -7,15 +7,28 @@ Rectangle
     property color nextMonthColor: "grey"
     property color borderColor: "grey"
     property color backgroundColor: "white"
+    property alias font: templateText.font
 
     signal datePicked(date d)
 
     property int yearStart: new Date().getFullYear() - 150
     property int yearRange: 300
-    property date theDate: new Date()
-    property int monthStartWeekDay: (new Date(theDate.getFullYear(), theDate.getMonth(), 1).getDay() + 6) % 7;
-    property int daysInMonth: new Date(theDate.getFullYear(), theDate.getMonth() + 1, 0).getDate();
-    property int daysInPrevMonth: new Date(theDate.getFullYear(), theDate.getMonth(), 0).getDate();
+    property date currentDate: new Date()
+
+    function init(d)
+    {
+        currentDate = d
+    }
+
+    // private
+    Text
+    {
+        id: templateText
+        visible: false
+    }
+    property int monthStartWeekDay: (new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay() + 6) % 7;
+    property int daysInMonth: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+    property int daysInPrevMonth: new Date(currentDate.getFullYear(), currentDate.getMonth(), 0).getDate();
 
     id: theJWDMDatePicker
     color: backgroundColor
@@ -24,23 +37,23 @@ Rectangle
 
     function setMonth(m)
     {
-        var newYear = theDate.getFullYear()
-        var newDay = theDate.getDay()
-        theDate = new Date(newYear, m, newDay)
+        var newYear = currentDate.getFullYear()
+        var newDay = currentDate.getDay()
+        currentDate = new Date(newYear, m, newDay)
     }
     function setYear(y)
     {
-        var newMonth = theDate.getMonth()
-        var newDay = theDate.getDay()
-        theDate = new Date(y, newMonth, newDay)
+        var newMonth = currentDate.getMonth()
+        var newDay = currentDate.getDay()
+        currentDate = new Date(y, newMonth, newDay)
     }
 
     function addMonth(m)
     {
-        var newMonth = theDate.getMonth()
-        var newYear = theDate.getFullYear()
-        var newDay = theDate.getDate()
-        theDate = new Date(newYear, newMonth + m, newDay)
+        var newMonth = currentDate.getMonth()
+        var newYear = currentDate.getFullYear()
+        var newDay = currentDate.getDate()
+        currentDate = new Date(newYear, newMonth + m, newDay)
     }
     Column
     {
@@ -59,6 +72,8 @@ Rectangle
                 text: "<"
                 height: parent.height
                 width: height
+                color: theJWDMDatePicker.fontColor
+                font: theJWDMDatePicker.font
                 MouseArea
                 {
                     anchors.fill: parent
@@ -76,12 +91,14 @@ Rectangle
             Text
             {
                 id: monthText
-                text: theDate.toLocaleDateString(Qt.locale(), "MMMM")
+                text: currentDate.toLocaleDateString(Qt.locale(), "MMMM")
                 anchors.left: leftKlick.right
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 height: parent.height
                 anchors.right: yearText.left
+                color: theJWDMDatePicker.fontColor
+                font: theJWDMDatePicker.font
                 MouseArea
                 {
                     anchors.fill: parent
@@ -95,18 +112,20 @@ Rectangle
             Text
             {
                 id: yearText
-                text: theDate.getFullYear()
+                text: currentDate.getFullYear()
                 anchors.right: rightKlick.left
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 height: parent.height
                 width: contentWidth + rightKlick.width / 2
+                color: theJWDMDatePicker.fontColor
+                font: theJWDMDatePicker.font
                 MouseArea
                 {
                     anchors.fill: parent
                     onClicked:
                     {
-                        yearSelect.currentIndex = theDate.getFullYear() - yearStart
+                        yearSelect.currentIndex = currentDate.getFullYear() - yearStart
                         monthSelect.visible = false
                         yearSelect.visible = !yearSelect.visible
                     }
@@ -121,6 +140,8 @@ Rectangle
                 width: height
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
+                color: theJWDMDatePicker.fontColor
+                font: theJWDMDatePicker.font
                 MouseArea
                 {
                     anchors.fill: parent
@@ -161,6 +182,8 @@ Rectangle
                         model: 7
                         delegate: Text
                         {
+                            color: theJWDMDatePicker.fontColor
+                            font: theJWDMDatePicker.font
                             text: (new Date(1978, 5, 23 + index - 4)).toLocaleDateString(Qt.locale(), "ddd")
                             width: weekDays.width / 7
                             height: weekDays.height
@@ -191,22 +214,34 @@ Rectangle
                         model: 7 * rows
                         delegate: Text
                         {
+                            font: theJWDMDatePicker.font
                             width: daySelect.width / 7
                             height: daySelect.height / theRepeater.rows
-                            property date myDate: new Date(theDate.getFullYear(), theDate.getMonth(), (index - monthStartWeekDay + 1))
+                            property date myDate: new Date(currentDate.getFullYear(), currentDate.getMonth(), (index - monthStartWeekDay + 1))
                             verticalAlignment: Text.AlignVCenter
                             horizontalAlignment: Text.AlignHCenter
                             text: myDate.getDate() + "."
-                            color: myDate.getMonth() > theDate.getMonth() ? nextMonthColor :
-                                                                            myDate.getMonth() < theDate.getMonth() ? prevMonthColor : fontColor
+                            color: myDate.getMonth() > currentDate.getMonth() ? nextMonthColor :
+                                                                                myDate.getMonth() < currentDate.getMonth() ? prevMonthColor : fontColor
                             MouseArea
                             {
                                 anchors.fill: parent
                                 onClicked:
                                 {
-                                    theDate = myDate
-                                    datePicked(theDate)
+                                    currentDate = myDate
+                                    datePicked(currentDate)
                                 }
+                            }
+                            Rectangle
+                            {
+                                anchors.centerIn: parent
+                                width: parent.width * 4 / 5
+                                height: parent.contentHeight * 1.5
+                                radius: 5
+                                color: "transparent"
+                                border.width: 1
+                                border.color: theJWDMDatePicker.borderColor
+                                visible: parent.myDate.getTime() == currentDate.getTime()
                             }
                         }
                     }
@@ -222,16 +257,16 @@ Rectangle
                 model: yearRange
                 cellHeight: height / 4
                 cellWidth: width / 4
-                currentIndex: theDate.getFullYear() - yearStart
-                delegate: Rectangle
+                currentIndex: currentDate.getFullYear() - yearStart
+                delegate:                    Text
                 {
                     width: yearSelect.cellWidth
                     height: yearSelect.cellHeight
-                    Text
-                    {
-                        text: yearStart + index
-                        anchors.centerIn: parent
-                    }
+                    font: theJWDMDatePicker.font
+                    color: theJWDMDatePicker.fontColor
+                    text: yearStart + index
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
                     MouseArea
                     {
                         anchors.fill: parent
@@ -240,6 +275,17 @@ Rectangle
                             setYear(yearStart + index)
                             yearSelect.visible = false
                         }
+                    }
+                    Rectangle
+                    {
+                        anchors.centerIn: parent
+                        width: parent.width * 4 / 5
+                        height: parent.contentHeight * 1.5
+                        radius: 5
+                        color: "transparent"
+                        border.width: 1
+                        border.color: theJWDMDatePicker.borderColor
+                        visible: parent.text == currentDate.getFullYear().toString()
                     }
                 }
             }
@@ -254,6 +300,8 @@ Rectangle
                 {
                     model: 12
                     Text {
+                        font: theJWDMDatePicker.font
+                        color: theJWDMDatePicker.fontColor
                         width: monthSelect.width / 4
                         height: monthSelect.height / 3
                         verticalAlignment: Text.AlignVCenter
@@ -267,6 +315,17 @@ Rectangle
                                 setMonth(index)
                                 monthSelect.visible = false
                             }
+                        }
+                        Rectangle
+                        {
+                            anchors.centerIn: parent
+                            width: parent.width * 4 / 5
+                            height: parent.contentHeight * 1.5
+                            radius: 5
+                            color: "transparent"
+                            border.width: 1
+                            border.color: theJWDMDatePicker.borderColor
+                            visible: parent.text == currentDate.toLocaleDateString(Qt.locale(), "MMM")
                         }
                     }
                 }
