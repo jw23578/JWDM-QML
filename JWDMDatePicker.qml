@@ -223,7 +223,7 @@ Rectangle
                     columns: 7
                     id: daySelect
                     width: parent.width
-                    height: theColumn.height - theDatePicker.border.width * 2 - line.height - line2.height - weekDays.height  - monthYear.height
+                    height: theColumn.height - theJWDMDatePicker.border.width * 2 - line.height - line2.height - weekDays.height  - monthYear.height
                     Repeater
                     {
                         id: theRepeater
